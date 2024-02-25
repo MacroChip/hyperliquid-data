@@ -1,7 +1,6 @@
 import json
 
-data = {
-	"chart_data": [
+data =  [
 		{
 			"time": "2023-11-12T00:00:00",
 			"coin": "CFX",
@@ -45313,22 +45312,23 @@ data = {
 			"sum_funding": 0.20944801366143848
 		}
 	]
-}
 
+#todo: fetch data from server
 def list_all_coins(data):
-	return [entry['coin'] for entry in data['chart_data']]
+	return [entry['coin'] for entry in data]
 
 
 def filter_eth_btc(data):
-    return [entry for entry in data['chart_data'] if entry['coin'] in ['ETH', 'BTC']]
+    return [entry for entry in data if entry['coin'] in ['ETH', 'BTC']]
 
+result = {}
 
-data2 = filter_eth_btc(data)
+for coin in list_all_coins(data):
+    data_points = [item['sum_funding'] for item in data if item['coin'] == coin] #coins might have fewer data points than other coins due to being newer
+    result[coin] = sum(data_points) / len(data_points)
 
-
-total_funding_eth = sum(item['sum_funding'] for item in data2 if item['coin'] == 'ETH')
-total_funding_btc = sum(item['sum_funding'] for item in data2 if item['coin'] == 'BTC')
-
-print(total_funding_eth)
-print(total_funding_btc)
-
+for item in result:
+    if (item == "BTC" or item == "ETH"):
+        print(item)
+        print(round(result[item], 2))
+        print("\n")

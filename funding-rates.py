@@ -1,7 +1,14 @@
 import json
 import requests
 
-r = requests.get("https://stats-api.hyperliquid.xyz/hyperliquid/funding_rate?start_date=2024-02-27&end_date=2024-03-05")
+start_date = "2023-11-01"
+end_date = "2024-03-12"
+
+print("from " + start_date)
+print("to " + end_date)
+print("\n")
+
+r = requests.get(f"https://stats-api.hyperliquid.xyz/hyperliquid/funding_rate?start_date={start_date}&end_date={end_date}")
 data = r.json()["chart_data"]
 
 def filter_desired_coins(data, coin_filter = ['ETH', 'BTC']):

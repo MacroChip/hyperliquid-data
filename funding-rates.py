@@ -1,32 +1,42 @@
 import json
 import requests
+from datetime import datetime
 
-start_date = "2024-03-27"
-end_date = "2069-03-18"
+start_date_str = "2024-05-01"
+end_date_str = "2029-04-16"
+start_date = datetime.strptime(start_date_str, "%Y-%m-%d")
+end_date = datetime.strptime(end_date_str, "%Y-%m-%d")
 
-print("from " + start_date)
-print("to " + end_date)
+print("from " + start_date_str)
+print("to " + end_date_str)
 print("")
 
-r = requests.get(f"https://stats-api.hyperliquid.xyz/hyperliquid/funding_rate?start_date={start_date}&end_date={end_date}")
+r = requests.get(f"https://d2v1fiwobg9w6.cloudfront.net/funding_rate")
 data = r.json()["chart_data"]
 
-def filter_desired_coins(data, coin_filter = ['ETH', 'BTC', 'SOL']):
-    return [entry['coin'] for entry in data if entry['coin'] in coin_filter]
+def filter_desired_entries(data, coin_filter):
+    result = []
+    for entry in data:
+        date_to_check = datetime.strptime(entry['time'], "%Y-%m-%dT%H:%M:%S")
+        if entry['coin'] in coin_filter and start_date <= date_to_check <= end_date:
+            result.append(entry)
+    return result
 
 def all_coins(data):
     return [entry['coin'] for entry in data]
 
 result = {}
-coins = filter_desired_coins(data)
+coin_filter = ['ETH', 'BTC', 'SOL', 'RUNE']
+coins = filter_desired_entries(data, coin_filter)
+print(coins)
 print(str(len(coins)) + " data points")
 print("")
 
-for coin in coins:
-    data_points = [item['sum_funding'] for item in data if item['coin'] == coin]
+for coin in coin_filter:
+    data_points = [item['sum_funding'] for item in coins if item['coin'] == coin]
     result[coin] = sum(data_points) / len(data_points)  #coins might have fewer data points than other coins due to being newer so divide by len(data_points)
 
 for item in result:
     print(item)
-    print(round(result[item], 2))
+    print(round(result[item], 4))
     print("\n")
